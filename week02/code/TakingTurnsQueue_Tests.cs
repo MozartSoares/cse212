@@ -11,7 +11,11 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (5), Sue (3) and
     // run until the queue is empty
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found: The queue was returning Sue first instead of Bob because the Enqueue operation
+    // was adding items to the front of the queue instead of the back. This violated FIFO (First In First Out)
+    // behavior. Fixed by changing _queue.Insert(0, person) to _queue.Add(person) in PersonQueue.cs.
+
+    //tem erro expec: bob / act: sue
     public void TestTakingTurnsQueue_FiniteRepetition()
     {
         var bob = new Person("Bob", 2);
@@ -43,7 +47,11 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (5), Sue (3)
     // After running 5 times, add George with 3 turns.  Run until the queue is empty.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, George, Sue, Tim, George, Tim, George
-    // Defect(s) Found: 
+    // Defect(s) Found: Same issue as above - queue order was reversed because Enqueue was adding to
+    // front instead of back. This caused the initial order to be wrong and also affected how George
+    // was added midway. Fixed by correcting the Enqueue implementation in PersonQueue.cs.
+
+    //tem erro expec: bob / act: sue
     public void TestTakingTurnsQueue_AddPlayerMidway()
     {
         var bob = new Person("Bob", 2);
@@ -85,7 +93,13 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Bob (2), Tim (Forever), Sue (3)
     // Run 10 times.
     // Expected Result: Bob, Tim, Sue, Bob, Tim, Sue, Tim, Sue, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found: Two issues were found:
+    // 1. Queue order was wrong (same as above)
+    // 2. Infinite turns (turns <= 0) weren't being handled correctly - Tim wasn't being added back
+    // to the queue when his turns were 0. Fixed by adding proper infinite turns handling in
+    // GetNextPerson() in TakingTurnsQueue.cs.
+
+    // tem erro Expected:<Bob>. Actual:<Sue>.
     public void TestTakingTurnsQueue_ForeverZero()
     {
         var timTurns = 0;
@@ -116,7 +130,13 @@ public class TakingTurnsQueueTests
     // Scenario: Create a queue with the following people and turns: Tim (Forever), Sue (3)
     // Run 10 times.
     // Expected Result: Tim, Sue, Tim, Sue, Tim, Sue, Tim, Tim, Tim, Tim
-    // Defect(s) Found: 
+    // Defect(s) Found: Two issues were found:
+    // 1. Queue order was wrong due to incorrect Enqueue implementation
+    // 2. Negative turns weren't being treated as infinite - Tim with -3 turns wasn't being
+    // kept in the queue indefinitely. Fixed by treating any turns <= 0 as infinite in
+    // GetNextPerson() in TakingTurnsQueue.cs.
+
+    //tem erro Expected:<Tim>. Actual:<Sue>.
     public void TestTakingTurnsQueue_ForeverNegative()
     {
         var timTurns = -3;
@@ -143,7 +163,8 @@ public class TakingTurnsQueueTests
     [TestMethod]
     // Scenario: Try to get the next person from an empty queue
     // Expected Result: Exception should be thrown with appropriate error message.
-    // Defect(s) Found: 
+    // Defect(s) Found: None - this test was working correctly from the start. The empty queue
+    // check and exception throwing were properly implemented.
     public void TestTakingTurnsQueue_Empty()
     {
         var players = new TakingTurnsQueue();
