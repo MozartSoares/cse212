@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Globalization;
 
 public static class Recursion
 {
@@ -14,7 +15,10 @@ public static class Recursion
     /// </summary>
     public static int SumSquaresRecursive(int n)
     {
-        // TODO Start Problem 1
+        if (n > 0)
+        {
+            return n * n + SumSquaresRecursive(n - 1);
+        }
         return 0;
     }
 
@@ -39,7 +43,30 @@ public static class Recursion
     /// </summary>
     public static void PermutationsChoose(List<string> results, string letters, int size, string word = "")
     {
-        // TODO Start Problem 2
+        // Base case: if word has reached the desired size, add it to results
+        if (word.Length == size)
+        {
+            results.Add(word);
+            return;
+        }
+
+        // Try each letter that hasn't been used yet
+        for (int i = 0; i < letters.Length; i++)
+        {
+            char currentLetter = letters[i];
+            string remainingLetters = letters.Remove(i, 1);
+            PermutationsChoose(results, remainingLetters, size, word + currentLetter);
+        }
+    }
+
+    /// <summary>
+    /// Helper function to calculate factorial
+    /// </summary>
+    public static int Factorial(int n)
+    {
+        if (n <= 1)
+            return 1;
+        return n * Factorial(n - 1);
     }
 
     /// <summary>
